@@ -85,7 +85,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:'Taja
 <div id="start" class="ov">
   <h1>رحلة الليل والنهار</h1>
   <p>ستسافر إلى الفضاء لتراقب الشمس والأرض والبحرين.</p>
-  <p>أدِر الجهاز أفقيًا، وارفع الصوت، ثم اضغط الزر.</p>
+  <p>أدِر الجهاز أفقيًا، ثم اضغط الزر.</p>
   <button id="go" type="button">ابدأ الرحلة</button>
   <div id="err"></div>
   <div id="frameWarn">هذه الصفحة مفتوحة داخل إطار موقع آخر، وهذا يمنع حساس الحركة. <a id="openDirect" target="_blank" rel="noopener">افتح التجربة في صفحة مستقلة</a></div>
@@ -110,6 +110,7 @@ var IMG = { day:'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAcFBQYF
 
 /* ============ إعدادات ============ */
 var QS = new URLSearchParams(location.search);
+var SOUND = QS.get('sound') === '1';                 // الصوت مغلق (أضف ?sound=1 لتشغيله)
 var LIMIT = (parseFloat(QS.get('min')) || 10) * 60;   // مدة التجربة بالثواني
 var DWELL = 1.5;                                     // زمن التثبيت للاختيار
 var DEG = Math.PI / 180;
@@ -615,7 +616,7 @@ function unlockAudio(){
   } catch (e) { AC = null; }
 }
 function tone(f, t0, dur, type, vol){
-  if (!AC) return;
+  if (!SOUND || !AC) return;
   var o = AC.createOscillator(), g = AC.createGain();
   o.type = type || 'sine'; o.frequency.value = f;
   g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol || 0.2, t0 + 0.02);
@@ -631,7 +632,7 @@ var SFX = {
     [[523,0],[523,.15],[523,.3],[659,.45],[784,.7],[659,.95],[784,1.1],[1047,1.3]].forEach(function(n){ tone(n[0], t + n[1], 0.45, 'triangle', 0.22); });
     tone(1568, t + 1.5, 1, 'sine', 0.1); },
   soft: function(){ if (!AC) return; var t = AC.currentTime; tone(440, t, 0.3, 'sine', 0.15); tone(370, t + 0.18, 0.45, 'sine', 0.13); },
-  whoosh: function(){ if (!AC) return; var t = AC.currentTime, len = AC.sampleRate * 0.8;
+  whoosh: function(){ if (!SOUND || !AC) return; var t = AC.currentTime, len = AC.sampleRate * 0.8;
     var b = AC.createBuffer(1, len, AC.sampleRate), d = b.getChannelData(0);
     for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.sin(Math.PI * i / len);
     var s = AC.createBufferSource(); s.buffer = b;
@@ -654,7 +655,7 @@ function unlockSpeech(){
   var u = new SpeechSynthesisUtterance(' '); u.volume = 0; u.lang = 'ar-SA'; speechSynthesis.speak(u);
 }
 function say(text){
-  if (!hasSpeech || !text) return;
+  if (!SOUND || !hasSpeech || !text) return;
   speechSynthesis.cancel();
   setTimeout(function(){
     var u = new SpeechSynthesisUtterance(text);
