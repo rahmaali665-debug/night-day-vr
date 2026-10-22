@@ -854,13 +854,10 @@ function finish(){
   SFX.fanfare();
   drawBadge(); badge.visible = true;
   burst(hud.position.clone());
-  drawHUD({ kind: 'badge', tag: 'انتهت المهام', title: 'مستكشف الفضاء', body: 'مجموع نقاطك ' + ar(S.score) + ' من ' + ar(70) + '. يمكنك مواصلة الاستكشاف.' });
+  drawHUD({ kind: 'badge', tag: 'انتهت المهام', title: 'مستكشف الفضاء', body: 'مجموع نقاطك ' + ar(S.score) + ' من ' + ar(70) + '.' });
   say('رائع! حصلت على شارة مستكشف الفضاء. مجموع نقاطك سبعون نقطة.');
-  setTimeout(function(){
-    if (S.rested) return;
-    badge.visible = false;
-    drawHUD({ kind: 'info', tag: 'مستكشف الفضاء', title: 'استكشف بحرية', body: 'انتقل بين الحلقات المضيئة وراقب الأرض والشمس.' });
-  }, 20000);
+  // نهاية التجربة: تبقى الشارة والنقاط، دون استكشاف حر
+  S.vpOn = false; updateVPVisibility(); speedPanel.visible = false;
 }
 
 // الأهداف
